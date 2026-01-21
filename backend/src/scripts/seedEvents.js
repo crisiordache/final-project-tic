@@ -14,7 +14,7 @@ async function seed() {
     const events = await generateEvents(30);
 
     const batch = db.batch();
-    const eventsCollection = db.collection('events');
+    const eventsCollection = db.collection(process.env.EVENTS_COLLECTION);
 
     events.forEach((event) => {
       const docRef = eventsCollection.doc(event.eventId);
