@@ -1,62 +1,105 @@
 <template>
-  <div class="min-h-[80vh] flex items-center justify-center px-4">
+  <div class="fixed inset-0 flex items-center justify-center bg-[#0b0f1a] px-4">
     <div
-      class="w-full max-w-[440px] bg-[#1c1f26] rounded-2xl shadow-2xl p-10 border border-gray-800 transition-all duration-300"
+      class="w-full max-w-[380px] bg-[#161b26] rounded-xl shadow-2xl p-6 md:p-8 border border-gray-800"
     >
-      <div class="text-center mb-10">
-        <h2 class="text-4xl font-semibold text-white tracking-tight">
-          Autentificare
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-white tracking-tight">
+          Welcome Back
         </h2>
-        <div class="h-px bg-gray-800 w-full mt-6"></div>
+        <p class="text-gray-400 mt-1 text-xs italic font-light">
+          Please enter your details
+        </p>
+        <div
+          class="h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent w-full mt-4"
+        ></div>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-6">
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-400 ml-1"
-            >Email</label
+      <form @submit.prevent="handleLogin" class="space-y-4">
+        <div class="group">
+          <label
+            class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-blue-500 transition-colors"
           >
+            Email Address
+          </label>
           <input
             v-model="email"
             type="email"
-            placeholder="Email"
-            class="w-full px-4 py-3 bg-[#2a2e37] border border-transparent rounded-lg text-white focus:ring-1 focus:ring-blue-500 focus:bg-[#323742] outline-none transition-all placeholder-gray-500"
+            placeholder="name@example.com"
+            class="w-full px-4 py-2.5 bg-[#1f2533] border border-gray-800 rounded-lg text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-gray-600"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-400 ml-1"
-            >Parolă</label
+        <div class="group">
+          <label
+            class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-blue-500 transition-colors"
           >
+            Password
+          </label>
           <input
             v-model="password"
             type="password"
-            placeholder="Parolă"
-            class="w-full px-4 py-3 bg-[#2a2e37] border border-transparent rounded-lg text-white focus:ring-1 focus:ring-blue-500 focus:bg-[#323742] outline-none transition-all placeholder-gray-500"
+            placeholder="••••••••"
+            class="w-full px-4 py-2.5 bg-[#1f2533] border border-gray-800 rounded-lg text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-gray-600"
             required
           />
         </div>
 
-        <div class="flex flex-col space-y-4">
-          <div
-            v-if="error"
-            class="text-red-500 text-sm italic ml-1 transition-all"
-          >
-            {{ error }}
-          </div>
-
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              :disabled="loading"
-              class="bg-[#2196f3] hover:bg-[#1e88e5] text-white font-medium py-2.5 px-8 rounded-lg shadow-lg shadow-blue-500/20 transition-all duration-300 transform active:scale-95 disabled:opacity-50"
-            >
-              <span v-if="loading">...</span>
-              <span v-else>Login</span>
-            </button>
-          </div>
+        <div
+          v-if="error"
+          class="text-red-500 text-[10px] text-center py-1 animate-pulse italic"
+        >
+          {{ error }}
         </div>
+
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-900/20 transition-all duration-300 transform active:scale-95 disabled:opacity-50 mt-2 uppercase text-[10px] tracking-widest"
+        >
+          {{ loading ? "Signing in..." : "Sign In" }}
+        </button>
       </form>
+
+      <div class="text-center mt-6 pt-4 border-t border-gray-800/50">
+        <p class="text-gray-500 text-[10px] tracking-wide">
+          Don't have an account?
+          <router-link
+            to="/register"
+            class="text-blue-500 hover:text-blue-400 font-bold ml-1 transition-colors"
+            >REGISTER</router-link
+          >
+        </p>
+      </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref } from "vue";
+import { useAuthStore } from "../stores/auth";
+import { useRouter } from "vue-router";
+
+const email = ref("");
+const password = ref("");
+const error = ref(null);
+const loading = ref(false);
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+const handleLogin = async () => {
+  loading.value = true;
+  error.value = null;
+  try {
+    await authStore.login(email.value, password.value);
+    router.push("/");
+  } catch (err) {
+    error.value = "Invalid email or password";
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+</script>

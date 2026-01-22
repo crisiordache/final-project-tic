@@ -13,9 +13,13 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async login(email, password) {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      this.token = await userCredential.user.getIdToken();
-      localStorage.setItem('token', this.token);
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        this.token = await userCredential.user.getIdToken();
+        localStorage.setItem('token', this.token);
+      } catch (error) {
+        throw error;
+      }
     },
 
     async logout() {
@@ -27,18 +31,32 @@ export const useAuthStore = defineStore('auth', {
     },
 
     init() {
+      this.loading = true;
+
       onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          this.user = user;
-          this.token = await user.getIdToken();
-          
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            this.profile = docSnap.data();
+        try {
+          if (user) {
+            this.user = user;
+            this.token = await user.getIdToken();
+            
+            try {
+              const docRef = doc(db, "users", user.uid);
+              const docSnap = await getDoc(docRef);
+              if (docSnap.exists()) {
+                this.profile = docSnap.data();
+              }
+            } catch (fsError) {
+              console.error("Firestore error (User Profile):", fsError);
+            }
+          } else {
+            this.user = null;
+            this.profile = null;
           }
+        } catch (error) {
+          console.error("Auth initialization error:", error);
+        } finally {
+          this.loading = false;
         }
-        this.loading = false;
       });
     }
   }

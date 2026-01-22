@@ -1,82 +1,92 @@
 <template>
-  <div class="min-h-[80vh] flex items-center justify-center px-4 bg-gray-900">
+  <div class="fixed inset-0 flex items-center justify-center bg-[#0b0f1a] px-4">
     <div
-      class="w-full max-w-[440px] bg-[#1c1f26] rounded-2xl shadow-2xl p-10 border border-gray-800 transition-all duration-300"
+      class="w-full max-w-[380px] bg-[#161b26] rounded-xl shadow-2xl p-6 md:p-8 border border-gray-800"
     >
-      <div class="text-center mb-10">
-        <h2 class="text-4xl font-semibold text-white tracking-tight">
-          Cont Nou
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-white tracking-tight">
+          Create Account
         </h2>
-        <div class="h-px bg-gray-800 w-full mt-6"></div>
+        <p class="text-gray-400 mt-1 text-xs italic font-light">
+          Join us to manage your events
+        </p>
+        <div
+          class="h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent w-full mt-4"
+        ></div>
       </div>
 
-      <form @submit.prevent="handleRegister" class="space-y-6">
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-400 ml-1"
-            >Nume Complet</label
+      <form @submit.prevent="handleRegister" class="space-y-4">
+        <div class="group">
+          <label
+            class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-blue-500 transition-colors"
           >
+            Full Name
+          </label>
           <input
             v-model="name"
             type="text"
-            placeholder="Numele tău"
-            class="w-full px-4 py-3 bg-[#2a2e37] border border-transparent rounded-lg text-white focus:ring-1 focus:ring-blue-500 focus:bg-[#323742] outline-none transition-all placeholder-gray-500"
+            placeholder="John Doe"
+            class="w-full px-4 py-2.5 bg-[#1f2533] border border-gray-800 rounded-lg text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-gray-600"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-400 ml-1"
-            >Email</label
+        <div class="group">
+          <label
+            class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-blue-500 transition-colors"
           >
+            Email Address
+          </label>
           <input
             v-model="email"
             type="email"
-            placeholder="Email"
-            class="w-full px-4 py-3 bg-[#2a2e37] border border-transparent rounded-lg text-white focus:ring-1 focus:ring-blue-500 focus:bg-[#323742] outline-none transition-all placeholder-gray-500"
+            placeholder="name@example.com"
+            class="w-full px-4 py-2.5 bg-[#1f2533] border border-gray-800 rounded-lg text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-gray-600"
             required
           />
         </div>
 
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-400 ml-1"
-            >Parolă</label
+        <div class="group">
+          <label
+            class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1 group-focus-within:text-blue-500 transition-colors"
           >
+            Password
+          </label>
           <input
             v-model="password"
             type="password"
-            placeholder="Minim 6 caractere"
-            class="w-full px-4 py-3 bg-[#2a2e37] border border-transparent rounded-lg text-white focus:ring-1 focus:ring-blue-500 focus:bg-[#323742] outline-none transition-all placeholder-gray-500"
+            placeholder="Min. 6 characters"
+            class="w-full px-4 py-2.5 bg-[#1f2533] border border-gray-800 rounded-lg text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-gray-600"
             required
           />
         </div>
 
-        <div class="flex flex-col space-y-4">
-          <div
-            v-if="error"
-            class="text-red-500 text-sm italic ml-1 transition-all"
-          >
-            {{ error }}
-          </div>
-
-          <div class="flex justify-end pt-2">
-            <button
-              type="submit"
-              :disabled="loading"
-              class="bg-[#2196f3] hover:bg-[#1e88e5] text-white font-medium py-2.5 px-8 rounded-lg shadow-lg shadow-blue-500/20 transition-all duration-300 transform active:scale-95 disabled:opacity-50"
-            >
-              <span v-if="loading">Se creează...</span>
-              <span v-else>Înregistrare</span>
-            </button>
-          </div>
+        <div
+          v-if="error"
+          class="text-red-500 text-[10px] text-center py-1 animate-pulse italic"
+        >
+          {{ error }}
         </div>
+
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-900/20 transition-all duration-300 transform active:scale-95 disabled:opacity-50 mt-2 uppercase text-[10px] tracking-widest"
+        >
+          {{ loading ? "Creating..." : "Register" }}
+        </button>
       </form>
 
-      <p class="text-center text-gray-500 mt-8 text-sm">
-        Ai deja cont?
-        <router-link to="/login" class="text-blue-500 hover:underline"
-          >Autentifică-te</router-link
-        >
-      </p>
+      <div class="text-center mt-6 pt-4 border-t border-gray-800/50">
+        <p class="text-gray-500 text-[10px] tracking-wide">
+          Already have an account?
+          <router-link
+            to="/login"
+            class="text-blue-500 hover:text-blue-400 font-bold ml-1 transition-colors"
+            >SIGN IN</router-link
+          >
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -85,7 +95,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
-// State-ul formularului
 const name = ref("");
 const email = ref("");
 const password = ref("");
@@ -99,12 +108,9 @@ const handleRegister = async () => {
   error.value = null;
 
   try {
-    // Apelăm API-ul de Backend (Arhitectură Full-Stack obligatorie)
     const response = await fetch("http://localhost:3000/api/users/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: name.value,
         email: email.value,
@@ -113,16 +119,11 @@ const handleRegister = async () => {
     });
 
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Eroare la înregistrare.");
-    }
-
-    // Dacă înregistrarea a reușit, redirecționăm la Login
+    if (!response.ok)
+      throw new Error(data.error || "Failed to create account.");
     router.push("/login");
   } catch (err) {
     error.value = err.message;
-    console.error("Register error:", err);
   } finally {
     loading.value = false;
   }
