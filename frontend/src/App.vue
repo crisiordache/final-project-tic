@@ -32,9 +32,6 @@ onMounted(() => {
     </div>
 
     <div v-if="authStore.user" class="text-sm">
-      <span class="text-gray-400 italic"
-        >Welcome, {{ authStore.profile?.name || "User" }}</span
-      >
       <button
         @click="authStore.logout"
         class="ml-4 bg-red-600/20 hover:bg-red-600/40 text-red-400 px-3 py-1 rounded-lg text-xs transition-all"

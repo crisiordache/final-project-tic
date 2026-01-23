@@ -5,7 +5,7 @@ async function authMiddleware(req, res, next) {
   const header = req.headers.authorization;
 
   if (!header || !header.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized: Missing token" });
+    return next();
   }
 
   const token = header.split("Bearer ")[1];
@@ -14,11 +14,9 @@ async function authMiddleware(req, res, next) {
     const decodedToken = await admin.auth().verifyIdToken(token);
     const userData = await User.getById(decodedToken.uid);
     
-    if (!userData) {
-      return res.status(404).json({ message: "The user does not exist in the database" });
+    if(userData) {
+      req.user = userData;
     }
-
-    req.user = userData; 
     next();
   } catch (err) {
     res.status(401).json({ message: "Invalid token" });

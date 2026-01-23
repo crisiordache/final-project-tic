@@ -11,7 +11,7 @@ const db = admin.firestore();
 
 async function seed() {
   try {
-    const events = await generateEvents(30);
+    const events = await generateEvents(10);
 
     const batch = db.batch();
     const eventsCollection = db.collection(process.env.EVENTS_COLLECTION);

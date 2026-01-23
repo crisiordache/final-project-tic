@@ -1,8 +1,14 @@
 const admin = require("../firebaseAdmin");
 const User = require("../models/users");
+const validateEvent = require('../validators/events');
 
 async function registerUser(req, res) {
   const { email, password, name } = req.body;
+  const validaton = validateEvent(req.body);
+
+  if(!validation.isValid) {
+    return res.status(400).json({ errors: validation.errors });
+  }
 
   try {
     const userRecord = await admin.auth().createUser({
@@ -47,7 +53,21 @@ async function login(req, res) {
   }
 }
 
+async function getUserById(req, res) {
+  const token = req.headers.authorization?.split("Bearer ")[1];
+  if (!token) return res.status(401).json({ message: "No token" });
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const userData = await User.getById(decodedToken.uid);
+    res.json({ user: userData });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  } 
+}
+
 module.exports = {
   registerUser,
-  login
+  login,
+  getUserById
 };
