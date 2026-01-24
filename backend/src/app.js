@@ -5,6 +5,7 @@ const morgan = require('morgan');
 
 const userRoutes = require('./routes/users');
 const eventRoutes = require('./routes/events');
+const bookingRoutes = require('./routes/bookings');
 
 const app = express();
 
@@ -14,8 +15,9 @@ app.use(morgan('dev'));
 
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Serverul rulează pe portul ${PORT}`);
+    console.log(`Server running at port ${PORT}`);
 });

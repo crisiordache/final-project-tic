@@ -121,6 +121,7 @@
             </div>
             <button
               v-else
+              @click="router.push(`/book/${event.eventId}`)"
               class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold py-2.5 px-5 rounded-lg uppercase tracking-widest transition-all"
             >
               Book Tickets

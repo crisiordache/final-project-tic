@@ -1,8 +1,15 @@
 <script setup>
 import { onMounted } from "vue";
 import { useAuthStore } from "./stores/auth";
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
+const router = useRouter();
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/');
+}
 
 onMounted(() => {
   authStore.init();
@@ -18,22 +25,27 @@ onMounted(() => {
         >Home</router-link
       >
       <router-link
-        v-if="!authStore.user"
+        v-if="!authStore.isLoggedIn"
         to="/login"
         class="hover:text-blue-400 transition-colors"
         >Login</router-link
       >
       <router-link
-        v-if="!authStore.user"
+        v-if="!authStore.isLoggedIn"
         to="/register"
         class="hover:text-blue-400 transition-colors"
         >Register</router-link
       >
+      <router-link 
+        v-if="authStore.isLoggedIn && !authStore.isAdmin" 
+        to="/my-bookings" 
+        class="hover:text-blue-400 transition-colors"
+        >My Bookings</router-link>
     </div>
 
-    <div v-if="authStore.user" class="text-sm">
+    <div v-if="authStore.isLoggedIn" class="text-sm">
       <button
-        @click="authStore.logout"
+        @click="handleLogout"
         class="ml-4 bg-red-600/20 hover:bg-red-600/40 text-red-400 px-3 py-1 rounded-lg text-xs transition-all"
       >
         Logout
@@ -56,10 +68,22 @@ onMounted(() => {
 </template>
 
 <style>
-/* Ștergem padding-ul care ar putea împinge conținutul în afara ecranului */
 body {
   margin: 0;
   padding: 0;
   background-color: #0b0f1a;
+}
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2533;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2d364a;
 }
 </style>
