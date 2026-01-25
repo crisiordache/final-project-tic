@@ -54,9 +54,9 @@
               : 'border-red-900/30 opacity-70 grayscale-[0.2]',
           ]"
         >
-          <div v-if="!event.isActive" class="absolute top-3 left-3 z-20">
+          <div v-if="!event.isActive || event.date < new Date()" class="absolute top-3 left-3 z-20">
             <span
-              class="bg-red-950 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/20 uppercase font-bold"
+              class="flex justify-center bg-red-950 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/20 uppercase font-bold"
             >
               Inactive
             </span>

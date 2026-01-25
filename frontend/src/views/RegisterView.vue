@@ -39,7 +39,6 @@
           </label>
           <input
             v-model="email"
-            type="email"
             placeholder="name@example.com"
             class="w-full px-4 py-2.5 bg-[#1f2533] border border-gray-800 rounded-lg text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-gray-600"
             required
@@ -62,10 +61,23 @@
         </div>
 
         <div
-          v-if="error"
+          v-if="error && !serverErrors.length"
           class="text-red-500 text-[10px] text-center py-1 animate-pulse italic"
         >
           {{ error }}
+        </div>
+        <div
+          v-if="serverErrors.length"
+          class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg"
+        >
+          <p class="text-red-500 text-[9px] font-black uppercase tracking-widest mb-1">
+            Fix the following:
+          </p>
+            <ul class="list-disc list-inside text-red-400 text-[10px] space-y-0.5">
+              <li v-for="(err, index) in serverErrors" :key="index">
+                {{ err }}
+              </li>
+            </ul>
         </div>
 
         <button
@@ -100,12 +112,14 @@ const email = ref("");
 const password = ref("");
 const error = ref(null);
 const loading = ref(false);
+const serverErrors = ref([]);
 
 const router = useRouter();
 
 const handleRegister = async () => {
   loading.value = true;
   error.value = null;
+  serverErrors.value = [];
 
   try {
     const response = await fetch("http://localhost:3000/api/users/register", {
@@ -119,8 +133,13 @@ const handleRegister = async () => {
     });
 
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.error || "Failed to create account.");
+    if (!response.ok) {
+      if(data.errors) {
+        serverErrors.value = data.errors;
+        throw new Error("Validation failed");
+      }
+      throw new Error(data.error);
+    }
     router.push("/login");
   } catch (err) {
     error.value = err.message;

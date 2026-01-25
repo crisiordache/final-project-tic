@@ -10,8 +10,8 @@ const validateUser = (data) => {
     errors.push("Password must be at least 6 characters long.");
   }
 
-  if (!data.name || data.name.trim().length < 2) {
-    errors.push("Name is required.");
+if (!data.name || data.name.split(" ").length < 2) {
+    errors.push("Full name is required.");
   }
 
   return {

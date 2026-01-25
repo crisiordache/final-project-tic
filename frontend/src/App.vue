@@ -41,6 +41,11 @@ onMounted(() => {
         to="/my-bookings" 
         class="hover:text-blue-400 transition-colors"
         >My Bookings</router-link>
+      <router-link
+        v-if="authStore.isLoggedIn && authStore.isAdmin"
+        to="/manage-users"
+        class="hove:text-blue-400 transition-colors"
+        >Manage users</router-link>
     </div>
 
     <div v-if="authStore.isLoggedIn" class="text-sm">

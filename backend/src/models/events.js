@@ -3,11 +3,17 @@ const db = admin.firestore();
 
 class Event {
   static async getAll(showAll = false) {
-    let query = db.collection('events');
+    let query = await db.collection('events');
+    const now = new Date();
+    let snapshot;
     if(!showAll) {
-      query = query.where('isActive', '==', true);
+      snapshot = query
+        .where('isActive', '==', true)
+        .where('date', '>=', now)
+        .orderBy('date', 'asc')
+        .get();
     }
-    const snapshot = await query.get();
+    snapshot = await query.orderBy('date', 'asc').get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 

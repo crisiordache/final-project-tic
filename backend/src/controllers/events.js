@@ -26,6 +26,9 @@ const getEventById = async (req, res) => {
 
 const createEvent = async (req, res) => {
   const data = req.body;
+  if(data.date) {
+    data.date = new Date(data.date);
+  }
   const validation = validateEvent(data);
   if (!validation.isValid) {
     return res.status(400).json({ errors: validation.errors });
@@ -41,6 +44,9 @@ const createEvent = async (req, res) => {
 const updateEvent = async (req, res) => {
   const eventId = req.params.id;
   const data = req.body;
+  if(data.date) {
+    data.date = new Date(data.date);
+  }
   const validation = validateEvent(data);
   if (!validation.isValid) {
     return res.status(400).json({ errors: validation.errors });

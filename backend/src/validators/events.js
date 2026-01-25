@@ -2,7 +2,7 @@ const validateEvent = (data) => {
   const errors = [];
   const now = new Date();
   const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const eventDate = new Date(data.date);
+  const eventDate = data.date;
 
   if (eventDate < oneWeekFromNow) {
     errors.push("Event date must be at least one week in the future.");
