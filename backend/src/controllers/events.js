@@ -4,7 +4,8 @@ const validateEvent = require('../validators/events');
 const getEvents = async (req, res) => {
   try {
     const isAdmin = req.user?.role === 'admin';
-    const events = await Event.getAll(isAdmin);
+    const { limit, lastDocId } = req.query;
+    const events = await Event.getAll(isAdmin, parseInt(limit) || 6, lastDocId || null);
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });

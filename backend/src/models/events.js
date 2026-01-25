@@ -2,18 +2,24 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 
 class Event {
-  static async getAll(showAll = false) {
+  static async getAll(showAll = false, limit = 6, lastDocId = null) {
     let query = await db.collection('events');
     const now = new Date();
-    let snapshot;
     if(!showAll) {
-      snapshot = query
+      query = query
         .where('isActive', '==', true)
-        .where('date', '>=', now)
-        .orderBy('date', 'asc')
-        .get();
+        .where('date', '>=', now);
     }
-    snapshot = await query.orderBy('date', 'asc').get();
+    query = query.orderBy('date', 'asc');
+
+    if (lastDocId) {
+      const lastDoc = await db.collection('events').doc(lastDocId).get();
+      if (lastDoc.exists) {
+        query = query.startAfter(lastDoc);
+      }
+    }
+
+    const snapshot = await query.limit(Number(limit)).get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 

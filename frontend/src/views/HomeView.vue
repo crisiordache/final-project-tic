@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#0b0f1a] text-white p-6 pt-20">
+  <div class="min-h-screen bg-[#0b0f1a] text-white p-6 pt-10">
     <div class="max-w-7xl mx-auto">
       <div
         class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-gray-800 pb-6"
@@ -32,7 +32,7 @@
           <div
             class="bg-[#161b26] px-4 py-2 rounded-lg border border-gray-800 text-[10px] font-bold uppercase tracking-widest text-blue-500"
           >
-            {{ filteredEvents.length }} Events Available
+            {{ events.length }} Events Available
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@
 
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
-          v-for="event in filteredEvents"
+          v-for="event in events"
           :key="event.eventId"
           :class="[
             'bg-[#161b26] border rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group relative',
@@ -54,9 +54,9 @@
               : 'border-red-900/30 opacity-70 grayscale-[0.2]',
           ]"
         >
-          <div v-if="!event.isActive || event.date < new Date()" class="absolute top-3 left-3 z-20">
+          <div v-if="!event.isActive || event.date < new Date()" class="absolute top-0 left-1/2 transform -translate-x-1/2 z-30">
             <span
-              class="flex justify-center bg-red-950 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/20 uppercase font-bold"
+              class="bg-red-950 text-red-400 text-[9px] px-2 py-1 rounded border border-red-500/20 uppercase font-bold"
             >
               Inactive
             </span>
@@ -129,6 +129,12 @@
           </div>
         </div>
       </div>
+      <div ref="loadMoreTrigger" class="h-20 flex flex-col justify-center items-center mt-10">
+        <div v-if="loadingMore" class="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+        <p v-else-if="noMoreEvents" class="text-gray-500 text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">
+          No more events to discover
+        </p>
+      </div>
     </div>
 
     <div
@@ -181,24 +187,54 @@ const loading = ref(true);
 const showModal = ref(false);
 const selectedEventId = ref(null);
 
-const filteredEvents = computed(() => {
-  if (authStore.isAdmin) return events.value;
-  return events.value.filter((e) => e.isActive);
-});
+const loadMoreTrigger = ref(null);
+const loadingMore = ref(false);
+const noMoreEvents = ref(false);
+const lastDocId = ref(null);
+const limit = 6;
 
-const fetchEvents = async () => {
+const fetchEvents = async (isLoadMore = false) => {
+  if (loadingMore.value || (noMoreEvents.value && isLoadMore)) return;
+
+  if (isLoadMore) loadingMore.value = true;
+  else loading.value = true;
+
   try {
-    const response = await fetch("http://localhost:3000/api/events", {
+    const url = new URL("http://localhost:3000/api/events");
+    url.searchParams.append("limit", limit);
+    if (isLoadMore && lastDocId.value) {
+      url.searchParams.append("lastDocId", lastDocId.value);
+    }
+
+    const response = await fetch(url, {
       headers: {
         Authorization: authStore.isLoggedIn ? `Bearer ${authStore.token}` : "",
       },
     });
+
     if (!response.ok) throw new Error("Failed to fetch");
-    events.value = await response.json();
+    
+    const newData = await response.json();
+
+    if (newData.length < limit) {
+      noMoreEvents.value = true;
+    }
+
+    if (isLoadMore) {
+      events.value = [...events.value, ...newData];
+    } else {
+      events.value = newData;
+    }
+
+    if (newData.length > 0) {
+      const lastItem = newData[newData.length - 1];
+      lastDocId.value = lastItem.id || lastItem.eventId;
+    }
   } catch (error) {
     console.error(error);
   } finally {
     loading.value = false;
+    loadingMore.value = false;
   }
 };
 
@@ -277,5 +313,19 @@ const formatDate = (rawDate) => {
 };
 const getMinPrice = (t) => (t?.length ? Math.min(...t.map((x) => x.price)) : 0);
 
-onMounted(fetchEvents);
+onMounted(() => {
+  fetchEvents();
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && !loading.value && !loadingMore.value && !noMoreEvents.value) {
+        fetchEvents(true);
+      }
+    },
+    { threshold: 0.5 }
+  );
+
+  if (loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value);
+  }
+});
 </script>
