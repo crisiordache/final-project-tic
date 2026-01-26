@@ -106,6 +106,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const name = ref("");
 const email = ref("");
@@ -122,13 +124,18 @@ const handleRegister = async () => {
   serverErrors.value = [];
 
   try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    const user = userCredential.user;
+    const token = await user.getIdToken();
     const response = await fetch("http://localhost:3000/api/users/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+       },
       body: JSON.stringify({
         name: name.value,
         email: email.value,
-        password: password.value,
       }),
     });
 

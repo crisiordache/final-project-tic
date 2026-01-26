@@ -41,7 +41,21 @@ export const useAuthStore = defineStore('auth', {
         this.token = await userCredential.user.getIdToken();
         localStorage.setItem('token', this.token);
         
-        await this.fetchUserProfile();
+        const response = await fetch("http://localhost:3000/api/users/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${this.token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Login failed');
+        }
+
+        const data = await response.json();
+        this.profile = data.user; 
+        localStorage.setItem('token', this.token);
       } catch (error) {
         throw error;
       }

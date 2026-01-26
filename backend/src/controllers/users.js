@@ -3,29 +3,20 @@ const User = require("../models/users");
 const validateUser = require('../validators/users');
 
 const registerUser = async (req, res) => {
-  const { email, password, name } = req.body;
-  const validation = validateUser(req.body);
-
-  if(!validation.isValid) {
-    return res.status(400).json({ errors: validation.errors });
-  }
+  const { name, email } = req.body;
+  const token = req.headers.authorization?.split("Bearer ")[1];
 
   try {
-    const userRecord = await admin.auth().createUser({
-      email,
-      displayName:name,
-      password
-    });
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const uid = decodedToken.uid;
 
-    const role = (email === process.env.ADMIN_EMAIL) ? "admin" : "user";
-
-    await User.create(userRecord.uid, {
+    await User.create(uid, {
       email,
       name,
-      role: (email === process.env.ADMIN_EMAIL) ? "admin" : "user"
+      role: "user"
     });
 
-    res.status(201).json({ message: "User created" });
+    res.status(201).json({ message: "Profile created successfully" });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
