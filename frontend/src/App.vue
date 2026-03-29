@@ -76,6 +76,7 @@ onMounted(() => {
       <button
         @click="menuOpen = !menuOpen"
         class="md:hidden flex flex-col gap-1.5 w-8 h-8 justify-center items-center"
+        aria-label="Toggle navigation menu"
       >
         <span :class="['w-6 h-0.5 bg-gray-800 transition-all', menuOpen && 'rotate-45 translate-y-2']"></span>
         <span :class="['w-6 h-0.5 bg-gray-800 transition-all', menuOpen && 'opacity-0']"></span>

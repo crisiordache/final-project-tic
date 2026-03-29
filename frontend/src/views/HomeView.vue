@@ -41,34 +41,44 @@
         v-if="!loading"
         class="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3"
       >
+        <label for="filter-search" class="sr-only">Search events</label>
         <input
+          id="filter-search"
           v-model="filters.search"
           type="search"
           placeholder="Search by name…"
           class="bg-white border border-gray-400 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium"
         />
+        <label for="filter-city" class="sr-only">Filter by city</label>
         <select
+          id="filter-city"
           v-model="filters.city"
           class="bg-white border border-gray-400 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium"
         >
           <option value="">All cities</option>
           <option v-for="c in cityOptions" :key="c" :value="c">{{ c }}</option>
         </select>
+        <label for="filter-venue" class="sr-only">Filter by venue</label>
         <select
+          id="filter-venue"
           v-model="filters.venue"
           class="bg-white border border-gray-400 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium"
         >
           <option value="">All venues</option>
           <option v-for="v in venueOptions" :key="v" :value="v">{{ v }}</option>
         </select>
+        <label for="filter-category" class="sr-only">Filter by category</label>
         <select
+          id="filter-category"
           v-model="filters.category"
           class="bg-white border border-gray-400 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium"
         >
           <option value="">All categories</option>
           <option v-for="cat in categoryOptions" :key="cat" :value="cat">{{ cat }}</option>
         </select>
+        <label for="filter-date" class="sr-only">Filter by date</label>
         <input
+          id="filter-date"
           v-model="filters.date"
           type="date"
           class="bg-white border border-gray-400 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium"
@@ -115,7 +125,7 @@
           </div>
 
           <div v-if="event.posterUrl" class="w-full h-48 overflow-hidden">
-            <img :src="event.posterUrl" :alt="event.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            <img :src="event.posterUrl" :alt="event.title + ' poster'" loading="lazy" width="400" height="192" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           </div>
           <div v-else class="w-full h-32 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
             <span class="text-4xl opacity-40">🎫</span>
@@ -148,11 +158,11 @@
                 {{ event.hasSeating ? "Assigned seats" : "General admission" }}
               </span>
             </div>
-            <h3
+            <h2
               class="text-lg font-bold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors"
             >
               {{ event.title }}
-            </h3>
+            </h2>
             <p class="text-[10px] text-gray-700 mb-1 font-medium">
               {{ event.location?.venue }}, {{ event.location?.city }}
             </p>
@@ -182,18 +192,21 @@
                 @click="handleRestore(event.id || event.eventId)"
                 class="bg-emerald-700 hover:bg-emerald-900 p-2.5 rounded-lg text-white transition-all active:scale-90"
                 title="Restore"
+                aria-label="Restore event"
               >
                 🔄
               </button>
               <button
                 @click="router.push(`/edit-event/${event.id || event.eventId}`)"
                 class="bg-blue-700 hover:bg-blue-900 p-2.5 rounded-lg text-white transition-all active:scale-90"
+                aria-label="Edit event"
               >
                 ✏️
               </button>
               <button
                 @click="openDeleteModal(event.id || event.eventId)"
                 class="bg-red-700 hover:bg-red-900 p-2.5 rounded-lg text-white transition-all active:scale-90"
+                aria-label="Delete event"
               >
                 🗑️
               </button>
