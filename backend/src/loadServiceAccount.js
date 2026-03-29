@@ -12,11 +12,19 @@ function getServiceAccountPath() {
 }
 
 function loadServiceAccount() {
+  // 1) Try base64-encoded JSON from env (for cloud deploys like Render)
+  const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  if (b64 && b64.trim()) {
+    return JSON.parse(Buffer.from(b64, "base64").toString("utf8"));
+  }
+
+  // 2) Fall back to local JSON file (for local dev)
   const keyPath = getServiceAccountPath();
   if (!fs.existsSync(keyPath)) {
     throw new Error(
       `Service account JSON not found: ${keyPath}\n` +
-        "Set FIREBASE_SERVICE_ACCOUNT_PATH in backend/.env (relative to backend folder) or add serviceAccountKey.json."
+        "Set FIREBASE_SERVICE_ACCOUNT_BASE64 env var (base64-encoded JSON) " +
+        "or FIREBASE_SERVICE_ACCOUNT_PATH, or add serviceAccountKey.json."
     );
   }
   return JSON.parse(fs.readFileSync(keyPath, "utf8"));
