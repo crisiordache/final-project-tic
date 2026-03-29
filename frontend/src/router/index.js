@@ -8,6 +8,7 @@ import EditEventView from '../views/CreateEventView.vue';
 import CreateBookingView from '../views/CreateBookingView.vue';
 import MyBookingsView from '../views/MyBookings.vue';
 import ManageUsersView from '../views/ManageUsersView.vue';
+import SeatMapView from '../views/SeatMapView.vue';
 
 const routes = [
   { path: '/', component: HomeView },
@@ -32,6 +33,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/seats/:eventId',
+    name: 'SeatMap',
+    component: SeatMapView,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/my-bookings',
     name: 'MyBookings',
     component: MyBookingsView,
@@ -52,6 +59,12 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
+  
+  // Wait for auth to finish loading
+  while (authStore.loading) {
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
     return next('/');
   } 

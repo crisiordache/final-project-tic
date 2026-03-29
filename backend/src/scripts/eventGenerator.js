@@ -27,12 +27,14 @@ async function generateEvents(count) {
         {
           type: "Standard",
           price: faker.number.int({ min: 50, max: 150 }),
-          available: faker.number.int({ min: 50, max: 300 })
+          available: faker.number.int({ min: 50, max: 300 }),
+          rows: []
         },
         {
           type: "VIP",
           price: faker.number.int({ min: 200, max: 400 }),
-          available: faker.number.int({ min: 10, max: 50 })
+          available: faker.number.int({ min: 10, max: 50 }),
+          rows: []
         }
       ],
 
@@ -42,7 +44,7 @@ async function generateEvents(count) {
         email: faker.internet.email()
       },
 
-      isActive: faker.datatype.boolean(),
+      isActive: true,
       createdAt: new Date()
     });
   }

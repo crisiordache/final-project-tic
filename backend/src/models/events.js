@@ -3,24 +3,34 @@ const db = admin.firestore();
 
 class Event {
   static async getAll(showAll = false, limit = 6, lastDocId = null) {
-    let query = await db.collection('events');
+    const coll = db.collection("events");
     const now = new Date();
-    if(!showAll) {
-      query = query
-        .where('isActive', '==', true)
-        .where('date', '>=', now);
-    }
-    query = query.orderBy('date', 'asc');
+    const pageSize = Number(limit) || 6;
 
-    if (lastDocId) {
-      const lastDoc = await db.collection('events').doc(lastDocId).get();
-      if (lastDoc.exists) {
-        query = query.startAfter(lastDoc);
+    if (showAll) {
+      let query = coll.orderBy("date", "desc");
+      if (lastDocId) {
+        const lastDoc = await coll.doc(lastDocId).get();
+        if (lastDoc.exists) query = query.startAfter(lastDoc);
       }
+      const snapshot = await query.limit(pageSize).get();
+      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     }
 
-    const snapshot = await query.limit(Number(limit)).get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Public: inequality + orderBy on same field only needs the default index (no composite).
+    // Filter isActive in memory so we don't need isActive + date composite on new Firebase projects.
+    const fetchCap = Math.min(120, Math.max(pageSize * 20, pageSize));
+    let query = coll.where("date", ">=", now).orderBy("date", "asc");
+    if (lastDocId) {
+      const lastDoc = await coll.doc(lastDocId).get();
+      if (lastDoc.exists) query = query.startAfter(lastDoc);
+    }
+    const snapshot = await query.limit(fetchCap).get();
+    const rows = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((e) => e.isActive !== false);
+
+    return rows.slice(0, pageSize);
   }
 
   static async getById(eventId) {

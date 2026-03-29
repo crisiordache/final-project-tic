@@ -8,7 +8,7 @@ const validateEvent = (data) => {
     errors.push("Event date must be at least one week in the future.");
   }
 
-  if (data.ticketTypes && Array.isArray(data.ticketTypes)) {
+  if (data.ticketTypes && Array.isArray(data.ticketTypes) && data.ticketTypes.length >= 2) {
     const totalTickets = data.ticketTypes.reduce((sum, t) => sum + (t.available || 0), 0);
     const MAX_CAPACITY = 1000;
 
@@ -16,24 +16,29 @@ const validateEvent = (data) => {
       errors.push(`Total capacity (${totalTickets}) exceeds the limit of ${MAX_CAPACITY} seats.`);
     }
 
-    const vipTickets = data.ticketTypes[1].available;
+    const vipType = data.ticketTypes.find(t => t.type === "VIP");
+    const standardType = data.ticketTypes.find(t => t.type === "Standard");
 
-    if(vipTickets < totalTickets * 0.1) {
-      errors.push("VIP tickets must be at least 10% of the total capacity.");
-    }
-    if(vipTickets > totalTickets * 0.25) {
-      errors.push("VIP tickets cannot exceed 25% of the total capacity.");
-    }
-
-    const standardPrice = data.ticketTypes[0].price;
-    const vipPrice = data.ticketTypes[1].price;
-
-    if (vipPrice < standardPrice * 1.5) {
-      errors.push("VIP ticket price must be at least 50% higher than Standard ticket price.");
+    if (vipType && totalTickets > 0) {
+      const vipTickets = vipType.available || 0;
+      if (vipTickets < totalTickets * 0.1) {
+        errors.push("VIP tickets must be at least 10% of the total capacity.");
+      }
+      if (vipTickets > totalTickets * 0.25) {
+        errors.push("VIP tickets cannot exceed 25% of the total capacity.");
+      }
     }
 
-    const time = data.time;
-    const minutes = parseInt(time.split(":")[1], 10);
+    if (vipType && standardType) {
+      if (vipType.price < standardType.price * 1.5) {
+        errors.push("VIP ticket price must be at least 50% higher than Standard ticket price.");
+      }
+    }
+  }
+
+  if (data.time) {
+    const parts = String(data.time).split(":");
+    const minutes = parseInt(parts[1], 10);
     if (![0, 15, 30, 45].includes(minutes)) {
       errors.push("Event time minutes must be one of the following: 00, 15, 30, or 45.");
     }

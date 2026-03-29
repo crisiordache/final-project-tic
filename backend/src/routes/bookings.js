@@ -8,6 +8,7 @@ router.use(authMiddleware);
 router.use(requireAuth);
 
 router.post('/', bookingController.createBooking);
+router.post('/pending', bookingController.createPendingBooking);
 router.get('/my', bookingController.getBookingsByUserId);
 
 module.exports = router;

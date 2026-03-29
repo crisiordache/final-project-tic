@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { API_URL } from '../config';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -22,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async fetchUserProfile() {
       try {
-        const res = await fetch("http://localhost:3000/api/users/profile", {
+        const res = await fetch(`${API_URL}/users/profile`, {
           headers: { Authorization: `Bearer ${this.token}` }
         });
         const data = await res.json();
@@ -41,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = await userCredential.user.getIdToken();
         localStorage.setItem('token', this.token);
         
-        const response = await fetch("http://localhost:3000/api/users/login", {
+        const response = await fetch(`${API_URL}/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
